@@ -6,10 +6,10 @@ Created on Tue Jul 21 07:49:13 2020
 """
 # Run this script to access functions from any script in the repo
 
-import Classify as class
-import Compare as comp
-import DataCalculations as dc
-import Merge as m
-import Visualization as v
-import lib.Tools as t
-import DataReader as dr
+import classes.Classify as class
+import classes.Compare as comp
+import classes.DataCalculations as dc
+import classes.Merge as m
+import classes.Visualization as v
+import classes.lib.Tools as t
+import classes.DataReader as dr
