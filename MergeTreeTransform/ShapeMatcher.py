@@ -13,8 +13,8 @@ import os
 import subprocess as sp
 import platform as p
 import networkx as nx
-import lib.Tools as t
-from lib.sm2nx import read_sm
+from .lib import Tools as t
+from .lib import sm2nx as read_sm
 from contextlib import contextmanager
 
 
@@ -53,16 +53,16 @@ def cmd(command):
 #         NOT including the files themselves
 # ppmList: list of the .ppm files you want to convert
 #          If none, converts all .ppm in the directory
-#          I reccomend listing the .ppm files because the ShapeMatcher program 
+#          I reccomend listing the .ppm files because the ShapeMatcher program
 #          doesn't always read in everything in the directory for some reason
 # SMD: directory to ShapeMatcher application
 def read_ppm(DBname, ppmDir, ppmList = None, SMD = None ):
     if SMD == None:
         SMD = '../images/ShapeMatcher'
     print("Converting", ppmDir, "...")
-    
-    with cd(SMD): # Directory finagling begins  
-        
+
+    with cd(SMD): # Directory finagling begins
+
         with cd(ppmDir):# finagling x 2
             OS = p.system()
             if OS == 'Windows':
@@ -73,19 +73,19 @@ def read_ppm(DBname, ppmDir, ppmList = None, SMD = None ):
                 s = sorry.format("Unknown Operating System")
                 print(s)
                 return None
-        
+
         if contents.returncode != 0:
             s = sorry.format("Couldn't read the directory.")
             print(s)
             return None
-        
+
         # There is a built in ShapeMatcher commands that reads everything in a folder
         # But I found it to be buggy at times
         string = str(contents)
         string = string[string.find(ppmDir)+1:]
         fileList = string.split(".ppm")
         fileList = fileList[:-1]
-        
+
         # Need to work backwards from the end of the file name
         # This is why file names can't have spaces
         for i in range(len(fileList)):
@@ -102,28 +102,28 @@ def read_ppm(DBname, ppmDir, ppmList = None, SMD = None ):
 
         # Now we have a list of all the files in the folder
         # So we can make a database consisting of all of these files
-        
+
         # Start building the sm command for creating a database file
         createDB = 'sm -doExtSimp 0 -c ' + DBname + '.db'
-        
+
         # Now add each of the files
         for file in fileList:
             createDB += " " + ppmDir + '/' + file
-        
+
         # Make a database of the graphs
         cmd(createDB)
         # Convert database to XML file
         toXML = "sm -toXML "+ DBname + ".xml " + DBname + ".db"
         cmd(toXML)
-        print("----------")   
+        print("----------")
         g = read_sm(DBname + ".xml")
-        print("\t----------")   
+        print("\t----------")
         t.rename_key(g, list(g.keys())[0], DBname)
-        
-    print("\t----------")    
-    print("\nConversion complete. Returning NetworkX graph object.") 
+
+    print("\t----------")
+    print("\nConversion complete. Returning NetworkX graph object.")
     print("\nYour", DBname, "database and XML file should be in ", SMD)
-    
+
     return g
 
 # Converting the model data from ShapeMatcher into giant XML files
@@ -136,11 +136,11 @@ def models2xml(ppmFolder, SMD = None):
     if SMD == None:
         SMD = '../images/ShapeMatcher'
     print("Converting", ppmFolder, "...")
-    
-    with cd(SMD): # Directory finagling begins  
-        
+
+    with cd(SMD): # Directory finagling begins
+
         directory = 'models/' + ppmFolder
-        
+
         with cd(directory):# finagling x 2
             OS = p.system()
             if OS == 'Windows':
@@ -151,12 +151,12 @@ def models2xml(ppmFolder, SMD = None):
                 s = sorry.format("Unknown Operating System")
                 print(s)
                 return None
-        
+
         if contents.returncode != 0:
             s = sorry.format("Couldn't read the directory.")
             print(s)
             return None
-        
+
         # There is a built in ShapeMatcher commands that reads everything in a folder
         # But I found it to be buggy at times
         string = str(contents)
@@ -171,24 +171,24 @@ def models2xml(ppmFolder, SMD = None):
 
         # Now we have a list of all the files in the folder
         # So we can make a database consisting of all of these files
-        
+
         # Start building the sm command for creating a database file
         createDB = 'sm -doExtSimp 0 -c ' + ppmFolder + '.db'# + ' models/' + ppmFolder
-        
+
         # Now add each of the files
         for file in fileList:
             createDB = createDB + ' models/' + ppmFolder + '/' + file
-        
+
         # Make a database of the graphs
         cmd(createDB)
         # Convert database to XML file
         toXML = "sm -toXML "+ ppmFolder + ".xml " + ppmFolder + ".db"
         cmd(toXML)
-        
-    print("Conversion complete.") 
+
+    print("Conversion complete.")
     print("Your", ppmFolder, "database and XML file should be in ", SMD)
     print("You can now use read_sm() from sm2nx.py to convert the XML file into a networkx graph")
-    
+
     return None
 
 ######################## Actual Conversions ###################################
@@ -198,7 +198,7 @@ def models2xml(ppmFolder, SMD = None):
 # #     models = str(models)
 # #     z = sp.run('dir', shell = True, capture_output = True)
 # #     print(z.stdout.decode())
-    
+
 
 # #All the models that came with ShapeMatcher
 # models = ["ALIEN",

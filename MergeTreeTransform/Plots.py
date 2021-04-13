@@ -6,10 +6,10 @@ Created on Tue Jul  7 21:18:16 2020
 """
 # Running this script generates the plots seen in our paper
 # And a gif seen in our SUMMR 2020 conference presentation
-from lib.sm2nx import read_sm
-from lib.tud2nx import read_tud
-import lib.Tools as t
-import Classify as classify
+from .lib.sm2nx import read_sm
+from .lib.tud2nx import read_tud
+import .lib.Tools as t
+import .Classify as classify
 
 ########################### Comparing Letters####################################
 
@@ -21,9 +21,9 @@ p = "data/Letter-low"
 ds = "Letter-low"
 z = read_tud(p,ds,False)
 
-frames = 10 
+frames = 10
 scheme = "jet"
-alpha = 0.6 
+alpha = 0.6
 letters = {"K":"0",# There are 150 graphs of each letter in letter-low
             "N":"1",
             "L":"2",
@@ -68,7 +68,7 @@ for letter in letters:
     if letter == "W":
         num = 9
         lst = wList
-    j = 0    
+    j = 0
     for i in range(num):
         while letter + str(j) in lst:
             j += 1
@@ -97,7 +97,7 @@ points = classify.mds(input_list = l_inputs,
               legend_position = "lower right",
               alpha = alpha,
               TIME = True,
-              xRange = (-1.5,1.5), 
+              xRange = (-1.5,1.5),
               yRange = [-1,1])
 
 
@@ -143,7 +143,7 @@ biasedKangas = ['kangaroo117','kangaroo5', 'kangaroo6', 'kangaroo7', 'kangaroo8'
 
 dictList = [(alienDict, "alien", biasedAliens),
             (camelDict, "camel", biasedCamels),
-            (eagleDict, "eagle", biasedEagles), 
+            (eagleDict, "eagle", biasedEagles),
             (kangaDict, "kangaroo", biasedKangas)]
 
 inputs = []
@@ -157,17 +157,17 @@ import time
 total_time = 0
 start = time.time()
 for frame in [5, 20, 50, 100]: # number of frames used for average branching distance
-    
+
     for Dict in dictList:
         tuples = Dict[0][Dict[1]] # List of (graph, posdict) tuples
-        
+
         j = 0
         for i in range(num):
             while ( Dict[1] + str(j) ) in Dict[2]:
                 j+=1
             if j > len(tuples)-1:
                 break
-        
+
             G = tuples[j][0]
             G = t.main_component(G = G, report = False)
             pos = tuples[j][1]
@@ -175,10 +175,10 @@ for frame in [5, 20, 50, 100]: # number of frames used for average branching dis
             labels.append(Dict[1] + str(j))
             target.append(Dict[1])
             j += 1
-    
-    
+
+
     matrix = classify.get_matrix(inputs, frame, True, True, average = "median")
-    ind = [5, 20, 50, 100].index(frame)    
+    ind = [5, 20, 50, 100].index(frame)
     matrices[ind] = matrix # For you to reference later
     points = classify.mds(input_list = inputs,
                   target_list = target,

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
 import time
-from DataCalculations import average_distance
+from .DataCalculations import average_distance
 from sklearn.manifold import MDS
 #from sympy import Matrix, pprint# old import from confusion matrix days
 
@@ -21,7 +21,7 @@ from sklearn.manifold import MDS
 #         for example ["cat","cat","dog"...]
 # data: numpy array, 1-D condesed distance matrix
 # frames: int, number of angles from which you want to calculate Average Branching Distance
-# thresh: int or float, distance value threshold for coloring dendrogram clusters, 
+# thresh: int or float, distance value threshold for coloring dendrogram clusters,
 # TIME: boolean, whether you want to time some process
 # average: string, whether you want to use "mean" or "median" as average
 ###############################################################################
@@ -29,10 +29,10 @@ from sklearn.manifold import MDS
 # Gets the distance data, then draws a dendrogram
 # returns 1-D condensed distance matrix as numpy array
 def draw_dendro(input_list, frames=180, data = None, labels=None, thresh=None):
-    
+
     if type(data) == type(None):
-        data = get_data(input_list, frames)[0]    
-    
+        data = get_data(input_list, frames)[0]
+
     dendrogram(data, labels=labels, thresh=thresh)
     plt.show()
     return data
@@ -41,16 +41,16 @@ def draw_dendro(input_list, frames=180, data = None, labels=None, thresh=None):
 # data parameter is NOT a 2D distance matrix
 # pass a 2D distance matrix through get_data first
 def dendrogram(data, labels=None, thresh=None):
-    plt.figure(figsize=(10, 7))  
+    plt.figure(figsize=(10, 7))
     plt.title("Dendrograms")
     lkg = shc.linkage(data, method='single')
     dend = shc.dendrogram(lkg, leaf_rotation = 90, labels=labels, color_threshold=thresh)
-    
+
     if(thresh != None):
         plt.axhline(y=thresh, color='r', linestyle='--')
-        
+
     return dend
-    
+
 # converts 2-D distance matrix to 1-D condensed distance matrix (both numpy arrays)
 def condense(two_dimension_distance_matrix):
     return ssd.squareform(two_dimension_distance_matrix)
@@ -61,13 +61,13 @@ def get_matrix(input_list, frames = 180, p = True, TIME = False, average = "medi
     start = time.time()
     count = len(input_list)
     data = np.zeros(shape=(count,count))
-    
+
     for i in range(count):
-        
+
         for j in range(i, count):
             if p == True:
                 print("(",i,",",j,")")
-            
+
             if(i==j):
                 val=0
             else:
@@ -76,10 +76,10 @@ def get_matrix(input_list, frames = 180, p = True, TIME = False, average = "medi
                 G2 = input_list[j][0]
                 pos2 = input_list[j][1]
                 val=average_distance(G1, pos1, G2, pos2, frames=frames, average = average)
-            
+
             data[i,j] = val
             data[j,i] = val
-    
+
     if TIME == True:
         print("Time to make distance matrix: " + str(time.time() - start))
     return data
@@ -88,10 +88,10 @@ def get_matrix(input_list, frames = 180, p = True, TIME = False, average = "medi
 # using average branching distance
 # Mostly for use within other functions
 def get_data(input_list, frames = 180, p = True, TIME = False, average = "median"):
-    
+
     data = get_matrix(input_list, frames = frames, p = p, TIME = TIME, average = average)
     flattened = condense(data)
-    
+
     return [flattened, data]
 
 # D: numpy array, 2-D distance matrix
@@ -119,68 +119,68 @@ def mds(input_list, target_list, frames=180, D = None, colorize = True, scheme =
         D = get_data(input_list, frames, p = True, TIME = TIME)[1] # Get a distance matrix from the input list
     model = MDS(n_components=2, dissimilarity='precomputed', random_state=1)
     coords = model.fit_transform(D) # Outputs an array of the coordinates
-    
+
     if colorize == False:
         x = coords[:, 0] # Get the x values
         y = coords[:, 1] # Get the y values
         plt.scatter(x, y) # Plot them
         plt.axis('equal')
-    
-    else: 
-        
+
+    else:
+
         label = {} # Dictionary of target labels
         for i in range(len(target_list)):# Find all the target labels in the data
             lbl = target_list[i]
-            
+
             if lbl not in label:
-                label[lbl] = []    
-            
+                label[lbl] = []
+
             label[lbl].append(i) # Keep track of the index of each element with this label
-        
+
         clusters = [] #List of (label, Xarray, Yarray) tuples
         for l in label:
             Xs = []# Keep track of the x and y values of elements with this label
             Ys = []
-            
+
             for index in label[l]: # Get the coordinates of elements with this label
                 Xs.append(coords[:,0][index]) # Get the x value
-                Ys.append(coords[:,1][index]) # Get the y value    
-            
-            clusters.append((l, np.array(Xs), np.array(Ys))) 
-            
+                Ys.append(coords[:,1][index]) # Get the y value
+
+            clusters.append((l, np.array(Xs), np.array(Ys)))
+
         fig = plt.figure() #initialize figure
         ax = fig.add_subplot(111) # 1x1 grid, 1st subplot
         values = range(len(label))
         jet = cm = plt.get_cmap(scheme) # Use matplotlib's jet color scheme by default
         cNorm  = colors.Normalize(vmin=0, vmax=values[-1])
         scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
-        
+
         for j in range(len(clusters)):
- 
+
             colorVal = scalarMap.to_rgba(values[j])
             colorText = (str(clusters[j][0]))
-            retPoints = plt.scatter(x = clusters[j][1], 
-                                   y = clusters[j][2], 
+            retPoints = plt.scatter(x = clusters[j][1],
+                                   y = clusters[j][2],
                                    c = [colorVal],# Make 'c' a vector to keep long warning message from printing
                                    label = colorText,
                                    alpha = alpha)
-           
+
             if legend == True:
                 handles,labels = ax.get_legend_handles_labels()
                 ax.legend(handles, labels, loc=legend_position)
-            
+
         # #plt.xlim(xmin, xmax)
         # #plt.ylim(ymin, ymax)
         if xRange != None and yRange != None:
             xmin, xmax = xRange[0], xRange[1]
-            ymin, ymax = yRange[0], yRange[1]    
+            ymin, ymax = yRange[0], yRange[1]
             ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
         else:
             plt.axis('equal')
         plt.show()
 
     return coords
-    
+
 ###############################################################################
 # Old code from back when we thought we were going to use a confusion matrix
 # Didn't wanna throw it away so here it is.
@@ -189,11 +189,11 @@ def mds(input_list, target_list, frames=180, D = None, colorize = True, scheme =
 # def confusion(input_list, labels, thresh, predicted_classes):
 #     data = get_data(input_list)[0]# Get the data in the format we want
 #     lkg = shc.linkage(data, method='single')# Get the linkage
-    
+
 #     # Get the list of all the classes that actually appeared in the data
 #     # The index in this corresponds to the elements at the same index in input_list
 #     actual_classes = list(shc.fcluster(lkg, thresh, criterion='distance'))
-    
+
 #     # Columns in the confusion matrix correspond to the predicted labels
 #     n = len(predicted_classes)
 #     # Rows in the confusion matrix correspond to the actual labels
@@ -214,7 +214,7 @@ def mds(input_list, target_list, frames=180, D = None, colorize = True, scheme =
 #             known.append(a)
 #             akey[index] = a
 #             index += 1
-    
+
 #     for i in range(len(labels)):
 #         p = predicted_classes[i] # Predicted class of a certain graph
 #         a = actual_classes[i] # Actual class of a the same graph

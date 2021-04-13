@@ -1,13 +1,16 @@
 #Levent Batakci
 #6/8/2020
 #This program compiles and organizes all our data-reading capabilities
-import lib.txt2nx as txt
-import lib.graphml2nx as graphml
-import lib.osm2nx as osm
-import lib.json2nx as json
-import lib.tud2nx as tud
-import lib.sm2nx as sm
-import ShapeMatcher as ppm
+from .lib import txt2nx as txt
+
+
+from .lib import txt2nx as txt
+from .lib import graphml2nx as graphml
+from .lib import osm2nx as osm
+from .lib import json2nx as json
+from .lib import tud2nx as tud
+from .lib import sm2nx as sm
+from . import ShapeMatcher as ppm
 
 
 #txt reading
@@ -67,18 +70,18 @@ def read_sm(path):
 def read_ppm(DBname, ppmDir, ppmList = None, SMD = "images/ShapeMatcher"):
     g = ppm.read_ppm(DBname, ppmDir, ppmList, SMD)
     return g
-    
+
 # Returns the largest connected component of a graph as a networkx object
 def main_component(G, pos_dict = None, report = True, draw = False):
     largest_cc = max(nx.connected_components(G), key=len)
     mainComponent = G.subgraph(largest_cc).copy()
-    
+
     if draw == True: # Draw largest component
         if pos_dict == None: # Drawing requires position dictionary
             print("I'll return the main component, but I need position dictionary to draw!")
         else:
             nx.draw(mainComponent, pos = pos_dict, with_labels = False, node_size = 0)
-    
+
     if report == True: # Tell user what percent of the nodes were preserved
         print("Largest component has ", (len(list(mainComponent.nodes))/len(list(G.nodes)))*100, "% of the nodes")
 
